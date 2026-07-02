@@ -40,3 +40,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     log
     vulkan
     games-frame-pacing::swappy)
+
+# Ensure 16KB page size compatibility for Android 15+
+target_link_options(${CMAKE_PROJECT_NAME} PRIVATE "-Wl,-z,max-page-size=16384")

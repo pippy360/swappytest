@@ -6,7 +6,7 @@ android {
     namespace = "com.example.swappytest"
     compileSdk {
         version = release(36) {
-            minorApiLevel1
+            minorApiLevel = 1
         }
     }
 
