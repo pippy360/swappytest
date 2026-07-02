@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <vector>
 #include <string.h>
+#include <swappy/swappyVk.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "VulkanRenderer", __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "VulkanRenderer", __VA_ARGS__))
@@ -14,7 +15,7 @@ VulkanRenderer::~VulkanRenderer() {
     cleanup();
 }
 
-void VulkanRenderer::init(ANativeWindow* window) {
+void VulkanRenderer::init(ANativeWindow* window, JNIEnv* env, jobject activity) {
     if (initialized) return;
     createInstance();
     createSurface(window);
@@ -63,10 +64,10 @@ void VulkanRenderer::setLoadFactor(int factor) {
     loadFactor = factor;
 }
 
-void VulkanRenderer::resize(int width, int height) {
+void VulkanRenderer::resize(int width, int height, JNIEnv* env, jobject activity) {
     if (!initialized || width == 0 || height == 0) return;
     cleanupSwapchain();
-    createSwapchain(width, height);
+    createSwapchain(width, height, env, activity);
     createImageViews();
     createRenderPass();
     createGraphicsPipeline();
@@ -151,7 +152,7 @@ void VulkanRenderer::createLogicalDevice() {
     vkGetDeviceQueue(device, graphicsQueueFamilyIndex, 0, &graphicsQueue);
 }
 
-void VulkanRenderer::createSwapchain(int width, int height) {
+void VulkanRenderer::createSwapchain(int width, int height, JNIEnv* env, jobject activity) {
     VkSurfaceCapabilitiesKHR capabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
     
@@ -181,6 +182,12 @@ void VulkanRenderer::createSwapchain(int width, int height) {
 
     if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapchain) != VK_SUCCESS) {
         LOGE("Failed to create swapchain");
+    }
+
+    if (env && activity) {
+        uint64_t refreshDuration = 0;
+        SwappyVk_initAndGetRefreshCycleDuration(env, activity, physicalDevice, device, swapchain, &refreshDuration);
+        swappy_enabled = true;
     }
 
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);

@@ -21,21 +21,21 @@ void renderLoop() {
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_swappytest_MainActivity_initVulkan(
         JNIEnv* env,
-        jobject /* this */,
+        jobject activityObj,
         jobject surface) {
     ANativeWindow* window = ANativeWindow_fromSurface(env, surface);
     std::lock_guard<std::mutex> lock(renderMutex);
-    renderer.init(window);
+    renderer.init(window, env, activityObj);
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_swappytest_MainActivity_onSurfaceChanged(
         JNIEnv* env,
-        jobject /* this */,
+        jobject activityObj,
         jint width,
         jint height) {
     std::lock_guard<std::mutex> lock(renderMutex);
-    renderer.resize(width, height);
+    renderer.resize(width, height, env, activityObj);
     
     if (!isRendering) {
         isRendering = true;
@@ -62,4 +62,11 @@ Java_com_example_swappytest_MainActivity_setLoadFactor(
         jint factor) {
     std::lock_guard<std::mutex> lock(renderMutex);
     renderer.setLoadFactor(factor);
+}
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_example_swappytest_MainActivity_isSwappyInitialized(
+        JNIEnv* env,
+        jobject /* this */) {
+    return renderer.isSwappyEnabled() ? JNI_TRUE : JNI_FALSE;
 }

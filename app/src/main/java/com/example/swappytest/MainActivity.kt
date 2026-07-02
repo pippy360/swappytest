@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     external fun onSurfaceChanged(width: Int, height: Int)
     external fun cleanupVulkan()
     external fun setLoadFactor(factor: Int)
+    external fun isSwappyInitialized(): Boolean
 
     companion object {
         init {

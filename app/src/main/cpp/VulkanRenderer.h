@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <android/native_window.h>
+#include <jni.h>
 #include <vector>
 
 class VulkanRenderer {
@@ -8,18 +9,19 @@ public:
     VulkanRenderer();
     ~VulkanRenderer();
 
-    void init(ANativeWindow* window);
+    void init(ANativeWindow* window, JNIEnv* env, jobject activity);
     void cleanup();
     void render();
     void setLoadFactor(int factor);
-    void resize(int width, int height);
+    void resize(int width, int height, JNIEnv* env, jobject activity);
+    bool isSwappyEnabled() const { return swappy_enabled; }
 
 private:
     void createInstance();
     void createSurface(ANativeWindow* window);
     void pickPhysicalDevice();
     void createLogicalDevice();
-    void createSwapchain(int width, int height);
+    void createSwapchain(int width, int height, JNIEnv* env, jobject activity);
     void createImageViews();
     void createRenderPass();
     void createGraphicsPipeline();
@@ -31,6 +33,7 @@ private:
 
     int loadFactor = 1;
     bool initialized = false;
+    bool swappy_enabled = false;
 
     VkInstance instance = VK_NULL_HANDLE;
     VkSurfaceKHR surface = VK_NULL_HANDLE;

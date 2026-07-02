@@ -6,7 +6,7 @@ android {
     namespace = "com.example.swappytest"
     compileSdk {
         version = release(36) {
-            minorApiLevel = 1
+            minorApiLevel1
         }
     }
 
@@ -18,6 +18,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                arguments("-DANDROID_STL=c++_shared")
+            }
+        }
     }
 
     buildTypes {
@@ -41,10 +47,12 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        prefab = true
     }
 }
 
 dependencies {
+    implementation("androidx.games:games-frame-pacing:1.10.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
